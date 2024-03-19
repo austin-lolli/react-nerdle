@@ -27,7 +27,6 @@ function App() {
   }
 
   const receiveIndexFromRow = (index) => {
-    // console.log("Hit recieveIndexFromRow function");
     setCurrentIndex(index);
   }
 
@@ -37,7 +36,7 @@ function App() {
 
 
   for (let i = 0; i < 6; ++i) { 
-    rows.push(<Row values={texts[i]} currentRow={i === currentGuess} sendDataToApp={receiveIndexFromRow}/>);
+    rows.push(<Row values={texts[i]} currentRow={i === currentGuess} sendDataToApp={receiveIndexFromRow} squareIndex={currentIndex} />);
   }
 
   return (

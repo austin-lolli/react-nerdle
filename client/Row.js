@@ -1,6 +1,6 @@
 // client/App.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Square from './Square';
 import './output.css';
 
@@ -11,14 +11,24 @@ import './output.css';
 // may need a prop and logic for determining if the rendered row is the current row, may consider moving this to App if there's not enough to abstract to here
 // need to either emit the selectedSquareIndex to Parent App component, or move this inside of that 
 
-function Row({values, currentRow, sendDataToApp}) {
-  const [selectedSquareIndex, setSelectedSquareIndex] = useState(0);
+function Row({values, currentRow, sendDataToApp, squareIndex}) {
+  const [selectedSquareIndex, setSelectedSquareIndex] = useState(squareIndex);
+
+  useEffect(() => {
+    setSelectedSquareIndex(squareIndex);
+  }, [squareIndex]);
 
   const selectSquare = (index) => {
     setSelectedSquareIndex(index);
-    console.log(index + " square clicked!");
     sendDataToApp(index);
   };
+
+  // // setSelectedSquareIndex(squareIndex);
+  // if (currentRow) {
+  //   // setSelectedSquareIndex(squareIndex);
+  //   console.log("Square Index prop: " + squareIndex);
+  //   console.log("Square Index state: " + selectedSquareIndex);
+  // }
 
   return (
     <div className="container mx-auto flex flex-row">
