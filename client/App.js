@@ -7,14 +7,26 @@ import './output.css';
 
 function App() {
   // dummy guess if needed for display purposes: [1, 7, '+', 2, 4, '=', 4, 1]
-  let guesses = [[1, 7, '+', 2, 4, '=', 4, 1], [], [], [], [], []]; // use something like this as state for holding past guesses and passing to guess rows
-  let currentGuess = 1;
+  const answer = [5, 2, '+', 1, 7, '=', 6, 9];
+  let remainingAnswer = [5, 2, '+', 1, 7, '=', 6, 9];
+  let guesses = [[], [], [], [], [], []]; // use something like this as state for holding past guesses and passing to guess rows
+  let guessData = [['', '', '', '', '', '', '', ''], 
+    ['', '', '', '', '', '', '', ''], 
+    ['', '', '', '', '', '', '', ''], 
+    ['', '', '', '', '', '', '', ''], 
+    ['', '', '', '', '', '', '', ''], 
+    ['', '', '', '', '', '', '', '']
+  ];
   const rows = [];
 
   const [texts, setTexts] = useState(guesses);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [feedback, setFeedback] = useState(guessData);
+  const [currentGuess, setCurrentGuess] = useState(0);
+  // const [symbolCorrect, setSymbolCorrect] = useState([]);
+  // const [symbolContains, setSymbolContains] = useState([]);
+  // const [symbolAbsent, setSymbolAbsent] = useState([]);
 
-  // probably want to use state for current guess as well... 
 
   // add logic to update the 'selected' square
   const updateText = (text) => {
@@ -22,21 +34,42 @@ function App() {
     updatedText[currentGuess][currentIndex] = text;
     setTexts(updatedText);
     setCurrentIndex(currentIndex < 7 ? currentIndex + 1 : 7);
-    // console.log(text + " was clicked");
-    // console.log(texts[currentGuess]);
   }
 
   const receiveIndexFromRow = (index) => {
     setCurrentIndex(index);
   }
 
-  // const submitGuess = () => {
-  //   console.log("Placeholder for submit guess... ");
-  // }
+  // use this function to determine how to style guess buttons 
+  const submitGuess = () => {
+    const updatedGuess = [...feedback];
+
+    for (let i = 0; i < 8; ++i) {
+      updatedGuess[currentGuess][i] = 'wrong';
+      if (texts[currentGuess][i] === answer[i]) {
+        updatedGuess[currentGuess][i] = 'right';
+        let index = remainingAnswer.indexOf(texts[currentGuess][i]);
+        remainingAnswer.splice(index, 1);
+      } 
+    } 
+
+    for (let i = 0; i < 8; ++i) {
+      if (remainingAnswer.includes(texts[currentGuess][i])) {
+        updatedGuess[currentGuess][i] = 'close';
+        let index = remainingAnswer.indexOf(texts[currentGuess][i]);
+        remainingAnswer.splice(index, 1);
+      } 
+    }
+
+    setFeedback(updatedGuess);
+    setCurrentGuess(currentGuess + 1);
+    setCurrentIndex(0);
+    remainingAnswer = answer;
+  }
 
 
   for (let i = 0; i < 6; ++i) { 
-    rows.push(<Row values={texts[i]} currentRow={i === currentGuess} sendDataToApp={receiveIndexFromRow} squareIndex={currentIndex} />);
+    rows.push(<Row values={texts[i]} currentRow={i === currentGuess} sendDataToApp={receiveIndexFromRow} squareIndex={currentIndex} guessData={feedback[i]} />);
   }
 
   return (
@@ -64,7 +97,7 @@ function App() {
           <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("*")}>*</button>
           <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("/")}>/</button>
           <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("=")}>=</button>
-          {/* <button className="box-border basis-[25%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={submitGuess()}>Enter</button> */}
+          <button className="box-border basis-[25%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => submitGuess()}>Enter</button>
         </div>
       </div>
     </div>
