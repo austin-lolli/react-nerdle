@@ -23,9 +23,10 @@ function App() {
   const [feedback, setFeedback] = useState(guessData);
   const [currentGuess, setCurrentGuess] = useState(0);
   const [buttonIndicators, setButtonIndicators] = useState(new Map());
+  const [gameIsComplete, setGameIsComplete] = useState(false);
 
 
-  // add logic to update the 'selected' square
+  // add a delete button and corresponding logic
   const updateText = (text) => {
     const updatedText = [...texts];
     updatedText[currentGuess][currentIndex] = text;
@@ -38,6 +39,10 @@ function App() {
   }
 
   // use this function to determine how to style guess buttons 
+  // To Do: validate that guesses are an equation and that they compute
+  // - resolves invalid guess submission
+  // - prevents empty/incomplete guesses from being submitted
+
   const submitGuess = () => {
     const updatedGuess = [...feedback];
     const updatedButtonIndicators = new Map(buttonIndicators);
@@ -68,11 +73,20 @@ function App() {
       }
     }
 
+    const gameStatus = [...new Set(updatedGuess[currentGuess])];
+
     setFeedback(updatedGuess);
     setCurrentGuess(currentGuess + 1);
     setCurrentIndex(0);
     setButtonIndicators(updatedButtonIndicators);
     remainingAnswer = answer;
+
+    // seems like the set functions are asyncronous with the execution of this function, so checking currentGuess = 5 (on last guess vs on first guess not allowed/past limit)
+    if ((gameStatus.length === 1 && gameStatus[0] === 'right') || currentGuess === 5) {
+      console.log("End of game reached!");
+      setGameIsComplete(true);
+    }
+
   }
 
 
@@ -83,7 +97,7 @@ function App() {
   return (
     <div>
       <div className="bg-slate-400 m-10 container mx-auto">
-        <h1 className="text-3xl font-bold underline">Nerdle.js</h1>
+        <h1 className="text-3xl font-bold underline">{gameIsComplete ? 'Game Over' : 'Nerdle.js'}</h1>
       </div>
       <div className="container mx-auto max-w-3xl">
         {rows}
