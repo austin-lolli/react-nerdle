@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Row from './Row';
-import Square from './Square';
 import './output.css';
 
 function App() {
@@ -23,9 +22,7 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedback, setFeedback] = useState(guessData);
   const [currentGuess, setCurrentGuess] = useState(0);
-  // const [symbolCorrect, setSymbolCorrect] = useState([]);
-  // const [symbolContains, setSymbolContains] = useState([]);
-  // const [symbolAbsent, setSymbolAbsent] = useState([]);
+  const [buttonIndicators, setButtonIndicators] = useState(new Map());
 
 
   // add logic to update the 'selected' square
@@ -43,11 +40,13 @@ function App() {
   // use this function to determine how to style guess buttons 
   const submitGuess = () => {
     const updatedGuess = [...feedback];
+    const updatedButtonIndicators = new Map(buttonIndicators);
 
     for (let i = 0; i < 8; ++i) {
       updatedGuess[currentGuess][i] = 'wrong';
       if (texts[currentGuess][i] === answer[i]) {
         updatedGuess[currentGuess][i] = 'right';
+        updatedButtonIndicators.set(texts[currentGuess][i], 'right');
         let index = remainingAnswer.indexOf(texts[currentGuess][i]);
         remainingAnswer.splice(index, 1);
       } 
@@ -58,12 +57,21 @@ function App() {
         updatedGuess[currentGuess][i] = 'close';
         let index = remainingAnswer.indexOf(texts[currentGuess][i]);
         remainingAnswer.splice(index, 1);
-      } 
+
+        if (!updatedButtonIndicators.has(texts[currentGuess][i])) {
+          updatedButtonIndicators.set(texts[currentGuess][i], 'close');
+        }
+      } else {
+        if (!updatedButtonIndicators.has(texts[currentGuess][i])) {
+          updatedButtonIndicators.set(texts[currentGuess][i], 'wrong');
+        }
+      }
     }
 
     setFeedback(updatedGuess);
     setCurrentGuess(currentGuess + 1);
     setCurrentIndex(0);
+    setButtonIndicators(updatedButtonIndicators);
     remainingAnswer = answer;
   }
 
@@ -80,23 +88,98 @@ function App() {
       <div className="container mx-auto max-w-3xl">
         {rows}
         <div className="container mx-auto flex flex-row">
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(1)}>1</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(2)}>2</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(3)}>3</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(4)}>4</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(5)}>5</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(6)}>6</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(7)}>7</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(8)}>8</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(9)}>9</button>
-          <button className="box-border basis-[10%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() =>updateText(0)}>0</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(1) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(1) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(1) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(1) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(1)}>1</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(2) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(2) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(2) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(2) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(2)}>2</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(3) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(3) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(3) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(3) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(3)}>3</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(4) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(4) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(4) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(4) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(4)}>4</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(5) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(5) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(5) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(5) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(5)}>5</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(6) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(6) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(6) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(6) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(6)}>6</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(7) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(7) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(7) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(7) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(7)}>7</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(8) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(8) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(8) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(8) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(8)}>8</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(9) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(9) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(9) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(9) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(9)}>9</button>
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get(0) === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get(0) === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get(0) === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has(0) ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText(0)}>0</button>  
         </div>
         <div className="container mx-auto flex flex-row">
-          <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("+")}>+</button>
-          <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("-")}>-</button>
-          <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("*")}>*</button>
-          <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("/")}>/</button>
-          <button className="box-border basis-[15%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("=")}>=</button>
+          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get("+") === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get("+") === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get("+") === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has("+") ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText("+")}>+</button>
+          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get("-") === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get("-") === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get("-") === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has("-") ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText("-")}>-</button>
+          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get("*") === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get("*") === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get("*") === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has("*") ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText("*")}>*</button>
+          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get("/") === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get("/") === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get("/") === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has("/") ? 'text-white' : 'bg-slate-300 '}`} 
+                  onClick={() => updateText("/")}>/</button>
+          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+                  ${buttonIndicators.get("=") === 'right' ? 'bg-emerald-700' : ''}
+                  ${buttonIndicators.get("=") === 'close' ? 'bg-pink-800' : ''}
+                  ${buttonIndicators.get("=") === 'wrong' ? 'bg-black' : ''}
+                  ${buttonIndicators.has("=") ? 'text-white' : 'bg-slate-300'}`} 
+                  onClick={() => updateText("=")}>=</button>
           <button className="box-border basis-[25%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => submitGuess()}>Enter</button>
         </div>
       </div>
