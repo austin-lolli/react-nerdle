@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Row from './Row';
 import './output.css';
+import Popup from 'reactjs-popup';
 
 function App() {
   // dummy guess if needed for display purposes: [1, 7, '+', 2, 4, '=', 4, 1]
@@ -23,15 +24,22 @@ function App() {
   const [feedback, setFeedback] = useState(guessData);
   const [currentGuess, setCurrentGuess] = useState(0);
   const [buttonIndicators, setButtonIndicators] = useState(new Map());
-  const [gameIsComplete, setGameIsComplete] = useState(false);
-
+  const [gameIsWon, setGameIsWon] = useState(false);
+  const [displayGameOver, setDisplayGameOver] = useState(false);
+  
+  
+  const closeGameOverMenu = () => setDisplayGameOver(false);
 
   // add a delete button and corresponding logic
   const updateText = (text) => {
     const updatedText = [...texts];
     updatedText[currentGuess][currentIndex] = text;
     setTexts(updatedText);
-    setCurrentIndex(currentIndex < 7 ? currentIndex + 1 : 7);
+    if(text === "") {
+      setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : 0);
+    } else {
+      setCurrentIndex(currentIndex < 7 ? currentIndex + 1 : 7);
+    }
   }
 
   const receiveIndexFromRow = (index) => {
@@ -46,6 +54,13 @@ function App() {
   const submitGuess = () => {
     const updatedGuess = [...feedback];
     const updatedButtonIndicators = new Map(buttonIndicators);
+
+    // guess validation:
+    // base cases: assert 8 characters and contains an equals sign, otherwise throw incomplete/expression vs equation error
+    // need to parse left and right side of the '=' operator
+    // eval left and eval right
+    // assert that left = right
+    // if so, proceed with guess logic, if not throw 'equation does not compute' and do not process guess
 
     for (let i = 0; i < 8; ++i) {
       updatedGuess[currentGuess][i] = 'wrong';
@@ -82,12 +97,27 @@ function App() {
     remainingAnswer = answer;
 
     // seems like the set functions are asyncronous with the execution of this function, so checking currentGuess = 5 (on last guess vs on first guess not allowed/past limit)
-    if ((gameStatus.length === 1 && gameStatus[0] === 'right') || currentGuess === 5) {
-      console.log("End of game reached!");
-      setGameIsComplete(true);
+    if (gameStatus.length === 1 && gameStatus[0] === 'right') {
+      setGameIsWon(true);
+      setDisplayGameOver(true);
+    } else if (currentGuess === 5) {
+      setDisplayGameOver(true);
     }
 
   }
+
+  // eventually add a play again button and some extra styling to pop up to make it look nicer 
+  const GameOverPopup = () => (
+    <Popup open={displayGameOver} closeOnDocumentClick onClose={closeGameOverMenu}>
+      <div className="w-96 h-64 bg-slate-200 rounded-sm static border border-slate-700">
+        <a className="rounded-full h-6 w-6 bg-slate-300 border border-slate-700 cursor-pointer font-medium text-xl text-center absolute -top-2 -right-2" onClick={closeGameOverMenu}>
+          &times;
+        </a>
+        <h1 className="font-medium font-mono text-2xl">{gameIsWon ? 'You won!' : 'You lost!'}</h1>
+        <p className="font-mono text-lg">{gameIsWon ? 'You found the correct equation in ' + currentGuess + ' guesses, nicely done!' : 'You ran out of guesses! The equation was ' + answer.join('')}</p>
+      </div>
+    </Popup>
+  )
 
 
   for (let i = 0; i < 6; ++i) { 
@@ -97,9 +127,11 @@ function App() {
   return (
     <div>
       <div className="bg-slate-400 m-10 container mx-auto">
-        <h1 className="text-3xl font-bold underline">{gameIsComplete ? 'Game Over' : 'Nerdle.js'}</h1>
+        <h1 className="text-3xl font-bold underline">Nerdle.js</h1>
       </div>
       <div className="container mx-auto max-w-3xl">
+        <GameOverPopup/>
+        <div id="popup-root" />
         {rows}
         <div className="container mx-auto flex flex-row">
           <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
@@ -164,36 +196,37 @@ function App() {
                   onClick={() => updateText(0)}>0</button>  
         </div>
         <div className="container mx-auto flex flex-row">
-          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
                   ${buttonIndicators.get("+") === 'right' ? 'bg-emerald-700' : ''}
                   ${buttonIndicators.get("+") === 'close' ? 'bg-pink-800' : ''}
                   ${buttonIndicators.get("+") === 'wrong' ? 'bg-black' : ''}
                   ${buttonIndicators.has("+") ? 'text-white' : 'bg-slate-300'}`} 
                   onClick={() => updateText("+")}>+</button>
-          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
                   ${buttonIndicators.get("-") === 'right' ? 'bg-emerald-700' : ''}
                   ${buttonIndicators.get("-") === 'close' ? 'bg-pink-800' : ''}
                   ${buttonIndicators.get("-") === 'wrong' ? 'bg-black' : ''}
                   ${buttonIndicators.has("-") ? 'text-white' : 'bg-slate-300'}`} 
                   onClick={() => updateText("-")}>-</button>
-          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
                   ${buttonIndicators.get("*") === 'right' ? 'bg-emerald-700' : ''}
                   ${buttonIndicators.get("*") === 'close' ? 'bg-pink-800' : ''}
                   ${buttonIndicators.get("*") === 'wrong' ? 'bg-black' : ''}
                   ${buttonIndicators.has("*") ? 'text-white' : 'bg-slate-300'}`} 
                   onClick={() => updateText("*")}>*</button>
-          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
                   ${buttonIndicators.get("/") === 'right' ? 'bg-emerald-700' : ''}
                   ${buttonIndicators.get("/") === 'close' ? 'bg-pink-800' : ''}
                   ${buttonIndicators.get("/") === 'wrong' ? 'bg-black' : ''}
                   ${buttonIndicators.has("/") ? 'text-white' : 'bg-slate-300 '}`} 
                   onClick={() => updateText("/")}>/</button>
-          <button className={`box-border basis-[15%] p-4 m-1 rounded-md text-2xl font-medium 
+          <button className={`box-border basis-[10%] p-4 m-1 rounded-md text-2xl font-medium 
                   ${buttonIndicators.get("=") === 'right' ? 'bg-emerald-700' : ''}
                   ${buttonIndicators.get("=") === 'close' ? 'bg-pink-800' : ''}
                   ${buttonIndicators.get("=") === 'wrong' ? 'bg-black' : ''}
                   ${buttonIndicators.has("=") ? 'text-white' : 'bg-slate-300'}`} 
                   onClick={() => updateText("=")}>=</button>
+          <button className="box-border basis-[25%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => updateText("")}>Delete</button>
           <button className="box-border basis-[25%] p-4 m-1 bg-slate-300 rounded-md text-2xl font-medium" onClick={() => submitGuess()}>Enter</button>
         </div>
       </div>
