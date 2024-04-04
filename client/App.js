@@ -30,7 +30,10 @@ function App() {
   
   const closeGameOverMenu = () => setDisplayGameOver(false);
 
-  // add a delete button and corresponding logic
+  // enhance current index logic for smoother delete
+  // when deleting last character (index 7) delete and keep cursor there 
+  // when deleting middle characters, move current index back, then delete that
+  // when deleting first, delete and keep index at 0 (no change)
   const updateText = (text) => {
     const updatedText = [...texts];
     updatedText[currentGuess][currentIndex] = text;
@@ -47,20 +50,35 @@ function App() {
   }
 
   // use this function to determine how to style guess buttons 
-  // To Do: validate that guesses are an equation and that they compute
-  // - resolves invalid guess submission
-  // - prevents empty/incomplete guesses from being submitted
+  // To Do: 
+  // use guess feedback to create popup/modal displays vs using console.log
+  // 
 
   const submitGuess = () => {
     const updatedGuess = [...feedback];
     const updatedButtonIndicators = new Map(buttonIndicators);
 
-    // guess validation:
-    // base cases: assert 8 characters and contains an equals sign, otherwise throw incomplete/expression vs equation error
-    // need to parse left and right side of the '=' operator
-    // eval left and eval right
-    // assert that left = right
-    // if so, proceed with guess logic, if not throw 'equation does not compute' and do not process guess
+    if (texts[currentGuess].length !== 8 || texts[currentGuess].findIndex((element) => element === '') !== -1) {
+      console.log('guess incomplete');
+      return 0;
+    }
+
+    const equalSignPosition = texts[currentGuess].findIndex((element) => element === '=');
+    
+    if (equalSignPosition < 0) {
+      console.log('Guesses must be an equation, can not be an expression or number');
+      return 0;
+    } else {
+      console.log(texts[currentGuess].slice(0, equalSignPosition).join(''));
+      const left = eval(texts[currentGuess].slice(0, equalSignPosition).join(''));
+      const right = eval(texts[currentGuess].slice(equalSignPosition + 1).join(''));
+
+      if (left !== right) {
+        console.log('Equation does not compute!');
+        return 0;
+      }
+    }
+    
 
     for (let i = 0; i < 8; ++i) {
       updatedGuess[currentGuess][i] = 'wrong';
