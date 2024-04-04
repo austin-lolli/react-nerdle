@@ -30,17 +30,22 @@ function App() {
   
   const closeGameOverMenu = () => setDisplayGameOver(false);
 
-  // enhance current index logic for smoother delete
-  // when deleting last character (index 7) delete and keep cursor there 
-  // when deleting middle characters, move current index back, then delete that
-  // when deleting first, delete and keep index at 0 (no change)
   const updateText = (text) => {
     const updatedText = [...texts];
-    updatedText[currentGuess][currentIndex] = text;
-    setTexts(updatedText);
-    if(text === "") {
-      setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : 0);
+
+    if(text === '') {
+      if (updatedText[currentGuess][currentIndex] !== '') {
+        updatedText[currentGuess][currentIndex] = text;
+        setTexts(updatedText);
+      } else {
+        const nextIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+        setCurrentIndex(nextIndex);
+        updatedText[currentGuess][nextIndex] = text;
+        setTexts(updatedText);
+      }
     } else {
+      updatedText[currentGuess][currentIndex] = text;
+      setTexts(updatedText);
       setCurrentIndex(currentIndex < 7 ? currentIndex + 1 : 7);
     }
   }
@@ -49,11 +54,8 @@ function App() {
     setCurrentIndex(index);
   }
 
-  // use this function to determine how to style guess buttons 
   // To Do: 
-  // use guess feedback to create popup/modal displays vs using console.log
-  // 
-
+  // display errors instead of using console.logs
   const submitGuess = () => {
     const updatedGuess = [...feedback];
     const updatedButtonIndicators = new Map(buttonIndicators);
